@@ -1,0 +1,164 @@
+// METABOLIC Design Tokens
+// Extraídos y unificados desde los 6 code.html de Docs/stitch_metabolic/
+
+// ---------------------------------------------------------------------------
+// Paleta de colores base (Material You / bio-táctica)
+// ---------------------------------------------------------------------------
+$metabolic-colors: (
+  // Fondos y superficies
+  background: #020617,
+  surface: #0c1324,
+  surface-dim: #0c1324,
+  surface-bright: #33394c,
+  surface-dark: #0a101f,
+  surface-low: #151b2d,
+  surface-lowest: #070d1f,
+  surface-container: #191f31,
+  surface-container-low: #151b2d,
+  surface-container-high: #23293c,
+  surface-container-highest: #2e3447,
+  surface-variant: #2e3447,
+
+  // Colores primarios (cian neón)
+  primary: #4cd7f6,
+  primary-container: #06b6d4,
+  primary-fixed: #acedff,
+  primary-fixed-dim: #4cd7f6,
+  on-primary: #003640,
+  on-primary-container: #00424f,
+  on-primary-fixed: #001f26,
+  on-primary-fixed-variant: #004e5c,
+  inverse-primary: #00687a,
+  surface-tint: #4cd7f6,
+
+  // Colores secundarios (rosa/magenta táctico)
+  secondary: #ffb2b7,
+  secondary-container: #b50036,
+  secondary-fixed: #ffdadb,
+  secondary-fixed-dim: #ffb2b7,
+  on-secondary: #67001b,
+  on-secondary-container: #ffc2c4,
+  on-secondary-fixed: #40000d,
+  on-secondary-fixed-variant: #92002a,
+
+  // Colores terciarios (verde neón)
+  tertiary: #4edea3,
+  tertiary-container: #1bbd85,
+  tertiary-fixed: #6ffbbe,
+  tertiary-fixed-dim: #4edea3,
+  on-tertiary: #003824,
+  on-tertiary-container: #00452e,
+  on-tertiary-fixed: #002113,
+  on-tertiary-fixed-variant: #005236,
+
+  // Texto
+  text: #f1f5f9,
+  text-soft: #dce1fb,
+  text-muted: #bcc9cd,
+  text-dim: #94a3b8,
+  on-background: #dce1fb,
+  on-surface: #dce1fb,
+  on-surface-variant: #bcc9cd,
+  inverse-surface: #dce1fb,
+  inverse-on-surface: #2a3043,
+
+  // Bordes y contornos
+  outline: #869397,
+  outline-variant: #3d494c,
+  grid-line: rgba(6, 182, 212, 0.15),
+  grid-faint: rgba(6, 182, 212, 0.05),
+
+  // Estados de error
+  error: #ffb4ab,
+  error-container: #93000a,
+  on-error: #690005,
+  on-error-container: #ffdad6,
+);
+
+// ---------------------------------------------------------------------------
+// Glows y sombras (valores semitransparentes)
+// ---------------------------------------------------------------------------
+$metabolic-glows: (
+  glow-cyan: rgba(6, 182, 212, 0.5),
+  glow-cyan-soft: rgba(76, 215, 246, 0.4),
+  glow-rose: rgba(244, 63, 94, 0.4),
+  glow-green: rgba(16, 185, 129, 0.4),
+);
+
+// ---------------------------------------------------------------------------
+// Tipografía
+// ---------------------------------------------------------------------------
+$font-display: 'Orbitron', 'Space Grotesk', sans-serif;
+$font-heading: 'Space Grotesk', sans-serif;
+$font-body: 'Space Grotesk', sans-serif;
+$font-data: 'Space Mono', monospace;
+$font-mono: 'Space Mono', monospace;
+
+// ---------------------------------------------------------------------------
+// Layout
+// ---------------------------------------------------------------------------
+$sidebar-width: 280px;
+$nav-height: 72px;
+$gutter: 16px;
+$margin-mobile: 20px;
+$margin-desktop: 40px;
+$radius: 2px;
+
+// ---------------------------------------------------------------------------
+// Breakpoints
+// ---------------------------------------------------------------------------
+$bp-mobile: 600px;
+$bp-tablet: 900px;
+$bp-desktop: 1200px;
+
+// ---------------------------------------------------------------------------
+// Z-index scale
+// ---------------------------------------------------------------------------
+$z-base: 0;
+$z-content: 10;
+$z-scanline: 50;
+$z-sidebar: 60;
+$z-topbar: 50;
+$z-mobile-toggle: 70;
+$z-modal-backdrop: 80;
+$z-modal: 90;
+$z-toast: 100;
+
+// ---------------------------------------------------------------------------
+// Generación de variables CSS
+// ---------------------------------------------------------------------------
+:root {
+  @each $name, $value in $metabolic-colors {
+    --metabolic-#{$name}: #{$value};
+  }
+
+  @each $name, $value in $metabolic-glows {
+    --metabolic-#{$name}: #{$value};
+  }
+
+  // Variables de layout
+  --metabolic-sidebar-width: #{$sidebar-width};
+  --metabolic-nav-height: #{$nav-height};
+  --metabolic-gutter: #{$gutter};
+  --metabolic-margin-mobile: #{$margin-mobile};
+  --metabolic-margin-desktop: #{$margin-desktop};
+  --metabolic-radius: #{$radius};
+
+  // Variables de tipografía
+  --metabolic-font-display: #{$font-display};
+  --metabolic-font-heading: #{$font-heading};
+  --metabolic-font-body: #{$font-body};
+  --metabolic-font-data: #{$font-data};
+  --metabolic-font-mono: #{$font-mono};
+
+  // Sombras / glows compuestos
+  --metabolic-shadow-glow-cyan: 0 0 15px var(--metabolic-glow-cyan-soft);
+  --metabolic-shadow-glow-rose: 0 0 15px var(--metabolic-glow-rose);
+  --metabolic-shadow-glow-green: 0 0 15px var(--metabolic-glow-green);
+  --metabolic-shadow-card: 0 0 30px rgba(0, 0, 0, 0.4);
+  --metabolic-shadow-inset-cyan: inset 0 0 20px rgba(6, 182, 212, 0.1);
+
+  color-scheme: dark;
+  font-family: var(--metabolic-font-body);
+  background: var(--metabolic-background);
+}

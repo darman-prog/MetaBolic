@@ -1,0 +1,19 @@
+from django.contrib import admin
+from django.urls import path, include
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from accounts.urls import profile_urlpatterns
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/auth/', include('accounts.urls')),
+    path('api/profile/', include(profile_urlpatterns)),
+    path('api/protocols/', include('protocols.urls')),
+    path('api/missions/', include('missions.urls')),
+    path('api/sessions/', include('training.urls')),
+    path('api/progress/', include('progress.urls')),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+]

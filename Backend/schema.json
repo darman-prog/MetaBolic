@@ -1,0 +1,1701 @@
+openapi: 3.0.3
+info:
+  title: METABOLIC API
+  version: 1.0.0
+  description: Bio-tactical fitness API for METABOLIC operators
+paths:
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Register'
+          description: ''
+  /api/missions/:
+    get:
+      operationId: missions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - missions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMissionReadList'
+          description: ''
+    post:
+      operationId: missions_create
+      tags:
+      - missions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MissionWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MissionWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MissionWrite'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionWrite'
+          description: ''
+  /api/missions/{id}/:
+    get:
+      operationId: missions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - missions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionRead'
+          description: ''
+    put:
+      operationId: missions_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - missions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MissionWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MissionWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MissionWrite'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionWrite'
+          description: ''
+    patch:
+      operationId: missions_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - missions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMissionWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMissionWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMissionWrite'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionWrite'
+          description: ''
+    delete:
+      operationId: missions_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - missions
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/missions/{id}/complete/:
+    post:
+      operationId: missions_complete_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - missions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MissionWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MissionWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MissionWrite'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionWrite'
+          description: ''
+  /api/profile/:
+    get:
+      operationId: profile_retrieve
+      tags:
+      - profile
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperatorProfileRead'
+          description: ''
+    put:
+      operationId: profile_update
+      tags:
+      - profile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OperatorProfileWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OperatorProfileWrite'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OperatorProfileWrite'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperatorProfileWrite'
+          description: ''
+    patch:
+      operationId: profile_partial_update
+      tags:
+      - profile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOperatorProfileWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOperatorProfileWrite'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOperatorProfileWrite'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperatorProfileWrite'
+          description: ''
+  /api/progress/:
+    get:
+      operationId: progress_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - progress
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProgressEntryReadList'
+          description: ''
+    post:
+      operationId: progress_create
+      tags:
+      - progress
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProgressEntryWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProgressEntryWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProgressEntryWrite'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressEntryWrite'
+          description: ''
+  /api/progress/{id}/:
+    get:
+      operationId: progress_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - progress
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressEntryRead'
+          description: ''
+    put:
+      operationId: progress_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - progress
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProgressEntryWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProgressEntryWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProgressEntryWrite'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressEntryWrite'
+          description: ''
+    patch:
+      operationId: progress_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - progress
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProgressEntryWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProgressEntryWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProgressEntryWrite'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressEntryWrite'
+          description: ''
+    delete:
+      operationId: progress_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - progress
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/progress/summary/:
+    get:
+      operationId: progress_summary_retrieve
+      tags:
+      - progress
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressEntryRead'
+          description: ''
+  /api/progress/volume_by_group/:
+    get:
+      operationId: progress_volume_by_group_retrieve
+      tags:
+      - progress
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressEntryRead'
+          description: ''
+  /api/protocols/:
+    get:
+      operationId: protocols_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - protocols
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProtocolReadList'
+          description: ''
+    post:
+      operationId: protocols_create
+      tags:
+      - protocols
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProtocolWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProtocolWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProtocolWrite'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolWrite'
+          description: ''
+  /api/protocols/{id}/:
+    get:
+      operationId: protocols_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - protocols
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolRead'
+          description: ''
+    put:
+      operationId: protocols_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - protocols
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProtocolWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProtocolWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProtocolWrite'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolWrite'
+          description: ''
+    patch:
+      operationId: protocols_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - protocols
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProtocolWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProtocolWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProtocolWrite'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolWrite'
+          description: ''
+    delete:
+      operationId: protocols_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - protocols
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/protocols/{id}/modules/:
+    get:
+      operationId: protocols_modules_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - protocols
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolRead'
+          description: ''
+    post:
+      operationId: protocols_modules_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - protocols
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProtocolWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProtocolWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProtocolWrite'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolWrite'
+          description: ''
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/sessions/:
+    get:
+      operationId: sessions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTrainingSessionReadList'
+          description: ''
+    post:
+      operationId: sessions_create
+      tags:
+      - sessions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingSessionWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TrainingSessionWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TrainingSessionWrite'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingSessionWrite'
+          description: ''
+  /api/sessions/{id}/:
+    get:
+      operationId: sessions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingSessionRead'
+          description: ''
+    delete:
+      operationId: sessions_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/sessions/{id}/volume/:
+    get:
+      operationId: sessions_volume_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - sessions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingSessionRead'
+          description: ''
+    post:
+      operationId: sessions_volume_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - sessions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingSessionWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TrainingSessionWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TrainingSessionWrite'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingSessionWrite'
+          description: ''
+components:
+  schemas:
+    ExerciseModule:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        muscle_group:
+          $ref: '#/components/schemas/MuscleGroupEnum'
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        sets:
+          type: integer
+          maximum: 20
+          minimum: 1
+        reps:
+          type: integer
+          maximum: 100
+          minimum: 1
+        target_weight_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,5}(?:\.\d{0,1})?$
+      required:
+      - id
+      - muscle_group
+      - name
+      - order
+      - reps
+      - sets
+      - target_weight_kg
+    MissionRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        mission_type:
+          $ref: '#/components/schemas/MissionTypeEnum'
+        xp_reward:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        current_progress:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        goal:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        progress_percent:
+          type: integer
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/Status3f1Enum'
+        deadline:
+          type: string
+          format: date
+          nullable: true
+        operator:
+          type: integer
+        operator_alias:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - created_at
+      - id
+      - operator
+      - operator_alias
+      - progress_percent
+      - title
+    MissionTypeEnum:
+      enum:
+      - EJERCICIO
+      - HIDRATACION
+      - SUENO
+      - CUSTOM
+      type: string
+      description: |-
+        * `EJERCICIO` - Ejercicio
+        * `HIDRATACION` - Hidratación
+        * `SUENO` - Sueño
+        * `CUSTOM` - Custom
+    MissionWrite:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        mission_type:
+          $ref: '#/components/schemas/MissionTypeEnum'
+        xp_reward:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        current_progress:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        goal:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        status:
+          $ref: '#/components/schemas/Status3f1Enum'
+        deadline:
+          type: string
+          format: date
+          nullable: true
+      required:
+      - title
+    MuscleGroupEnum:
+      enum:
+      - PUSH
+      - PULL
+      - CORE
+      - LEGS
+      - FULL_BODY
+      type: string
+      description: |-
+        * `PUSH` - Push
+        * `PULL` - Pull
+        * `CORE` - Core
+        * `LEGS` - Legs
+        * `FULL_BODY` - Full Body
+    OperatorProfileRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        alias:
+          type: string
+          maxLength: 50
+        rank:
+          $ref: '#/components/schemas/RankEnum'
+        level:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        xp_total:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        height_cm:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+        current_weight_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+        username:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - alias
+      - created_at
+      - email
+      - id
+      - username
+    OperatorProfileWrite:
+      type: object
+      properties:
+        alias:
+          type: string
+          maxLength: 50
+        height_cm:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+        current_weight_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+      required:
+      - alias
+    PaginatedMissionReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MissionRead'
+    PaginatedProgressEntryReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProgressEntryRead'
+    PaginatedProtocolReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProtocolRead'
+    PaginatedTrainingSessionReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrainingSessionRead'
+    PatchedMissionWrite:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        mission_type:
+          $ref: '#/components/schemas/MissionTypeEnum'
+        xp_reward:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        current_progress:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        goal:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        status:
+          $ref: '#/components/schemas/Status3f1Enum'
+        deadline:
+          type: string
+          format: date
+          nullable: true
+    PatchedOperatorProfileWrite:
+      type: object
+      properties:
+        alias:
+          type: string
+          maxLength: 50
+        height_cm:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+        current_weight_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+    PatchedProgressEntryWrite:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        weight_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+        body_fat_percentage:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,1})?$
+          nullable: true
+        measurements:
+          nullable: true
+    PatchedProtocolWrite:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        stimulus_type:
+          $ref: '#/components/schemas/StimulusTypeEnum'
+        status:
+          $ref: '#/components/schemas/StatusAcdEnum'
+        estimated_duration_min:
+          type: integer
+          maximum: 300
+          minimum: 1
+        metabolic_load_kcal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,1})?$
+          nullable: true
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExerciseModule'
+    PriorityEnum:
+      enum:
+      - ALTO
+      - MEDIO
+      - BAJO
+      type: string
+      description: |-
+        * `ALTO` - Alto
+        * `MEDIO` - Medio
+        * `BAJO` - Bajo
+    ProgressEntryRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        operator:
+          type: integer
+        operator_alias:
+          type: string
+          readOnly: true
+        date:
+          type: string
+          format: date
+        weight_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+        body_fat_percentage:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,1})?$
+          nullable: true
+        measurements:
+          nullable: true
+      required:
+      - date
+      - id
+      - operator
+      - operator_alias
+      - weight_kg
+    ProgressEntryWrite:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        weight_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+        body_fat_percentage:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,1})?$
+          nullable: true
+        measurements:
+          nullable: true
+      required:
+      - date
+      - weight_kg
+    ProtocolRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        stimulus_type:
+          $ref: '#/components/schemas/StimulusTypeEnum'
+        status:
+          $ref: '#/components/schemas/StatusAcdEnum'
+        estimated_duration_min:
+          type: integer
+          maximum: 300
+          minimum: 1
+        metabolic_load_kcal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,1})?$
+          nullable: true
+        created_by:
+          type: integer
+        created_by_alias:
+          type: string
+          readOnly: true
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExerciseModule'
+          readOnly: true
+        module_count:
+          type: integer
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_by
+      - created_by_alias
+      - estimated_duration_min
+      - id
+      - module_count
+      - modules
+      - name
+      - stimulus_type
+      - updated_at
+    ProtocolWrite:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        stimulus_type:
+          $ref: '#/components/schemas/StimulusTypeEnum'
+        status:
+          $ref: '#/components/schemas/StatusAcdEnum'
+        estimated_duration_min:
+          type: integer
+          maximum: 300
+          minimum: 1
+        metabolic_load_kcal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,1})?$
+          nullable: true
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExerciseModule'
+      required:
+      - estimated_duration_min
+      - name
+      - stimulus_type
+    RankEnum:
+      enum:
+      - NOVATO
+      - VANGUARD
+      - ALPHA
+      - ELITE
+      - LEGEND
+      type: string
+      description: |-
+        * `NOVATO` - Novato
+        * `VANGUARD` - Vanguard
+        * `ALPHA` - Alpha
+        * `ELITE` - Elite
+        * `LEGEND` - Legend
+    Register:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          title: Email address
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        alias:
+          type: string
+      required:
+      - password
+      - username
+    Status3f1Enum:
+      enum:
+      - PENDIENTE
+      - EN_PROGRESO
+      - COMPLETADA
+      type: string
+      description: |-
+        * `PENDIENTE` - Pendiente
+        * `EN_PROGRESO` - En Progreso
+        * `COMPLETADA` - Completada
+    StatusAcdEnum:
+      enum:
+      - ALPHA
+      - STABLE
+      - BETA
+      type: string
+      description: |-
+        * `ALPHA` - Alpha
+        * `STABLE` - Stable
+        * `BETA` - Beta
+    StimulusTypeEnum:
+      enum:
+      - FUERZA_MAX
+      - HIPERTROFIA
+      - RESISTENCIA
+      - POTENCIA
+      - RESISTENCIA_MUSCULAR
+      type: string
+      description: |-
+        * `FUERZA_MAX` - Fuerza Máxima
+        * `HIPERTROFIA` - Hipertrofia
+        * `RESISTENCIA` - Resistencia
+        * `POTENCIA` - Potencia
+        * `RESISTENCIA_MUSCULAR` - Resistencia Muscular
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - password
+      - refresh
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    TrainingSessionRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        operator:
+          type: integer
+        operator_alias:
+          type: string
+          readOnly: true
+        protocol:
+          type: integer
+          nullable: true
+        protocol_name:
+          type: string
+          readOnly: true
+          nullable: true
+        date:
+          type: string
+          format: date
+        actual_duration_min:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        total_load_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,7}(?:\.\d{0,1})?$
+        estimated_calories:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,1})?$
+          nullable: true
+        notes:
+          type: string
+      required:
+      - actual_duration_min
+      - date
+      - id
+      - operator
+      - operator_alias
+      - protocol_name
+    TrainingSessionWrite:
+      type: object
+      properties:
+        protocol:
+          type: integer
+          nullable: true
+        date:
+          type: string
+          format: date
+        actual_duration_min:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        total_load_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,7}(?:\.\d{0,1})?$
+        estimated_calories:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,1})?$
+          nullable: true
+        notes:
+          type: string
+      required:
+      - actual_duration_min
+      - date
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

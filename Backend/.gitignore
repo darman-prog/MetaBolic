@@ -1,0 +1,26 @@
+/venv
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.log
+
+# Environment variables
+.env
+
+# Static files
+staticfiles/
+media/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
