@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarNavComponent } from '../sidebar-nav/sidebar-nav.component';
+import { ProfileStore } from '../../services/profile.store';
 
 /**
  * Shell principal de la aplicación.
@@ -16,9 +17,9 @@ import { SidebarNavComponent } from '../sidebar-nav/sidebar-nav.component';
     <div class="shell">
       <header class="topbar">
         <div class="topbar__left">
-          <span class="topbar__date">WEDNESDAY 10</span>
+          <span class="topbar__date">{{ currentWeekday() }} {{ currentDay() }}</span>
           <span class="topbar__separator" aria-hidden="true"></span>
-          <span class="topbar__month">JUNE</span>
+          <span class="topbar__month">{{ currentMonth() }}</span>
         </div>
         <div class="topbar__right">
           <button class="topbar__icon" type="button" aria-label="Notificaciones">
@@ -26,8 +27,8 @@ import { SidebarNavComponent } from '../sidebar-nav/sidebar-nav.component';
           </button>
           <div class="topbar__profile">
             <div class="topbar__profile-meta">
-              <span class="topbar__rank">Rank: Vanguard</span>
-              <span class="topbar__operator">Operator_042</span>
+              <span class="topbar__rank">Rank: {{ rank() }}</span>
+              <span class="topbar__operator">{{ alias() }} // LVL {{ level() }}</span>
             </div>
             <button class="topbar__avatar" type="button" aria-label="Perfil de usuario">
               <span class="material-symbols-outlined" aria-hidden="true">account_circle</span>
@@ -168,4 +169,20 @@ import { SidebarNavComponent } from '../sidebar-nav/sidebar-nav.component';
     }
   `]
 })
-export class AppShellComponent {}
+export class AppShellComponent {
+  readonly profileStore = inject(ProfileStore);
+  readonly alias = computed(() => this.profileStore.alias());
+  readonly rank = computed(() => this.profileStore.rank());
+  readonly level = computed(() => this.profileStore.level());
+
+  readonly currentDate = signal(new Date());
+  readonly currentWeekday = computed(() =>
+    this.currentDate().toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase()
+  );
+  readonly currentDay = computed(() =>
+    this.currentDate().toLocaleDateString('en-US', { day: 'numeric' })
+  );
+  readonly currentMonth = computed(() =>
+    this.currentDate().toLocaleDateString('en-US', { month: 'long' }).toUpperCase()
+  );
+}

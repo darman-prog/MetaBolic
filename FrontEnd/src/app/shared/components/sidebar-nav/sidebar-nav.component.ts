@@ -1,7 +1,9 @@
 import { NgFor } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ProfileStore } from '../../services/profile.store';
+import { ToastService } from '../../components/toast/toast.service';
 
 interface NavItem {
   label: string;
@@ -51,8 +53,8 @@ interface NavItem {
       <div class="operator">
         <span class="operator__dot" aria-hidden="true"></span>
         <div class="operator__info">
-          <strong>OPERATOR_042</strong>
-          <small>STATUS: NOMINAL</small>
+          <strong>{{ alias() }}</strong>
+          <small>RANK: {{ rank() }} // LVL {{ level() }} // XP {{ xp() }}</small>
         </div>
         <button
           class="operator__logout"
@@ -236,6 +238,12 @@ interface NavItem {
 })
 export class SidebarNavComponent {
   readonly open = signal(false);
+  readonly profileStore = inject(ProfileStore);
+
+  readonly alias = computed(() => this.profileStore.alias());
+  readonly rank = computed(() => this.profileStore.rank());
+  readonly level = computed(() => this.profileStore.level());
+  readonly xp = computed(() => this.profileStore.xpTotal());
 
   readonly items: NavItem[] = [
     { label: 'Dashboard', route: '/dashboard', icon: 'settings_input_component' },
@@ -247,9 +255,11 @@ export class SidebarNavComponent {
 
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   logout(): void {
     this.auth.logout();
+    this.toast.info('Sesión cerrada correctamente.');
     void this.router.navigate(['/auth/login']);
   }
 }

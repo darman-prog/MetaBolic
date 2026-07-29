@@ -57,7 +57,7 @@ export type TerminalInputType = 'text' | 'password' | 'email' | 'number';
       border-bottom: 2px solid var(--metabolic-outline-variant);
       border-radius: 0;
       background: var(--metabolic-surface-dark);
-      color: var(--metabolic-text);
+      color: var(--metabolic-text-soft);
       font: 400 14px/1.4 var(--metabolic-font-data);
       letter-spacing: normal;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -71,6 +71,8 @@ export type TerminalInputType = 'text' | 'password' | 'email' | 'number';
       border-color: var(--metabolic-primary);
       box-shadow: inset 0 0 8px rgba(6, 182, 212, 0.3);
       outline: 0;
+      color: #ffffff;
+      text-shadow: 0 0 6px rgba(76, 215, 246, 0.4);
     }
 
     input:disabled {
