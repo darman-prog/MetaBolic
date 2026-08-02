@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
 import { DataRainComponent } from '../../../shared/components/data-rain/data-rain.component';
 import { MetabolicButtonComponent } from '../../../shared/components/metabolic-button/metabolic-button.component';
 import { MetabolicCardComponent } from '../../../shared/components/metabolic-card/metabolic-card.component';

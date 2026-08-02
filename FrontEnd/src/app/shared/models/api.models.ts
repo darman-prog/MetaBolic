@@ -4,7 +4,8 @@
 
 export interface AuthTokens {
   access: string;
-  refresh: string;
+  /** Refresh token ahora viaja en cookie httpOnly; en JSON solo cuando el cliente no soporta cookies. */
+  refresh?: string;
 }
 
 export interface AuthResponse extends AuthTokens {}

@@ -8,10 +8,10 @@ from .models import Protocol, ExerciseModule
 class ProtocolTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user('testop', password='testpass123')
+        self.user = User.objects.create_user('testop', password='StrongPass123!')
         self.profile = self.user.operator_profile
         response = self.client.post('/api/auth/login/', {
-            'username': 'testop', 'password': 'testpass123'
+            'username': 'testop', 'password': 'StrongPass123!'
         }, format='json')
         self.token = response.data['access']
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')

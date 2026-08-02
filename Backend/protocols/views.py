@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
 from .models import Protocol, ExerciseModule
 from .serializers import ProtocolReadSerializer, ProtocolWriteSerializer, ExerciseModuleSerializer
 from rest_framework.decorators import action
@@ -14,7 +14,9 @@ class ProtocolViewSet(viewsets.ModelViewSet):
         return ProtocolReadSerializer
 
     def get_queryset(self):
-        return Protocol.objects.filter(created_by=self.request.user.operator_profile)
+        return Protocol.objects.filter(
+            created_by=self.request.user.operator_profile
+        ).select_related('created_by').prefetch_related('modules')
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user.operator_profile)
@@ -36,5 +38,5 @@ class ProtocolViewSet(viewsets.ModelViewSet):
             ExerciseModule.objects.create(protocol=protocol, **serializer.validated_data)
         return Response(
             ExerciseModuleSerializer(protocol.modules.all(), many=True).data,
-            status=201,
+            status=status.HTTP_201_CREATED,
         )

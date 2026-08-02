@@ -1,13 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from accounts.views import LoginView, RefreshTokenView
 from accounts.urls import profile_urlpatterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/auth/login/', LoginView.as_view(), name='token_obtain_pair'),
+    path('api/auth/refresh/', RefreshTokenView.as_view(), name='token_refresh'),
     path('api/auth/', include('accounts.urls')),
     path('api/profile/', include(profile_urlpatterns)),
     path('api/protocols/', include('protocols.urls')),

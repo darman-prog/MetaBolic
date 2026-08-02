@@ -1,13 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, switchMap, tap, throwError } from 'rxjs';
+import { Observable, switchMap, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthResponse, LoginCredentials, RegisterPayload } from '../models/api.models';
 import { OperatorProfileRead } from '../models/domain.models';
 import { ProfileStore } from './profile.store';
 
 const ACCESS_TOKEN = 'metabolic.access';
-const REFRESH_TOKEN = 'metabolic.refresh';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -26,7 +25,7 @@ export class AuthService {
   }
 
   get refreshToken(): string | null {
-    return this.read(REFRESH_TOKEN);
+    return null;
   }
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
@@ -51,12 +50,8 @@ export class AuthService {
   }
 
   refresh(): Observable<AuthResponse> {
-    const refresh = this.refreshToken;
-    if (!refresh) {
-      return throwError(() => new Error('No refresh token available'));
-    }
     return this.http
-      .post<AuthResponse>(`${this.apiUrl}/auth/refresh/`, { refresh })
+      .post<AuthResponse>(`${this.apiUrl}/auth/refresh/`, {})
       .pipe(tap(response => this.persistTokens(response)));
   }
 
@@ -70,31 +65,37 @@ export class AuthService {
   }
 
   logout(): void {
+    this.clearLocalSession();
+    this.http
+      .post(`${this.apiUrl}/auth/logout/`, {})
+      .pipe(tap({ error: () => {} }))
+      .subscribe();
+  }
+
+  private clearLocalSession(): void {
     this.remove(ACCESS_TOKEN);
-    this.remove(REFRESH_TOKEN);
     this.currentUser.set(null);
     this.profileStore.clear();
   }
 
   private persistTokens(response: AuthResponse): void {
     this.write(ACCESS_TOKEN, response.access);
-    this.write(REFRESH_TOKEN, response.refresh);
   }
 
   private read(key: string): string | null {
-    if (typeof localStorage === 'undefined') return null;
-    return localStorage.getItem(key);
+    if (typeof sessionStorage === 'undefined') return null;
+    return sessionStorage.getItem(key);
   }
 
   private write(key: string, value: string): void {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(key, value);
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem(key, value);
     }
   }
 
   private remove(key: string): void {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem(key);
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(key);
     }
   }
 

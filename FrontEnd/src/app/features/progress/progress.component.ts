@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { MetabolicButtonComponent } from '../../shared/components/metabolic-button/metabolic-button.component';
 import { MetabolicCardComponent } from '../../shared/components/metabolic-card/metabolic-card.component';
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
@@ -20,6 +21,7 @@ import { PaginationService } from '../../shared/services/pagination.service';
   standalone: true,
   imports: [
     DecimalPipe,
+    MetabolicButtonComponent,
     MetabolicCardComponent,
     ProgressBarComponent,
     StatusBadgeComponent,
@@ -360,6 +362,13 @@ export class ProgressComponent implements OnInit {
   readonly progressEntries = signal<ProgressEntryRead[]>([]);
   readonly volumes = signal<MuscleGroupVolumeSummary[]>([]);
 
+  constructor() {
+    effect(() => {
+      this.period(); // track period changes
+      this.loadVolumes();
+    });
+  }
+
   readonly pagination = signal({
     page: 1,
     totalPages: 1,
@@ -425,10 +434,23 @@ export class ProgressComponent implements OnInit {
   }
 
   loadVolumes(): void {
-    this.progressService.volumeByGroup().subscribe({
+    const range = this.dateRangeForPeriod(this.period());
+    this.progressService.volumeByGroup(range.dateFrom, range.dateTo).subscribe({
       next: v => this.volumes.set(v),
       error: () => {},
     });
+  }
+
+  private dateRangeForPeriod(period: 'MES' | 'SEMANA'): { dateFrom: string; dateTo: string } {
+    const now = new Date();
+    const to = now.toISOString().slice(0, 10);
+    const from = new Date(now);
+    if (period === 'SEMANA') {
+      from.setDate(now.getDate() - 6);
+    } else {
+      from.setDate(1);
+    }
+    return { dateFrom: from.toISOString().slice(0, 10), dateTo: to };
   }
 
   volumePercentage(value: number): number {

@@ -18,8 +18,21 @@ export class ProfileService {
   }
 
   update(profile: OperatorProfileWrite): Observable<OperatorProfileRead> {
+    const payload = this.buildPayload(profile);
     return this.http
-      .patch<OperatorProfileRead>(`${this.apiUrl}/profile/`, profile)
+      .patch<OperatorProfileRead>(`${this.apiUrl}/profile/`, payload)
       .pipe(tap(updated => this.profileStore.set(updated)));
+  }
+
+  private buildPayload(profile: OperatorProfileWrite): OperatorProfileWrite | FormData {
+    if (profile.avatar instanceof File) {
+      const formData = new FormData();
+      if (profile.alias !== undefined) formData.append('alias', profile.alias);
+      if (profile.height_cm !== undefined) formData.append('height_cm', String(profile.height_cm));
+      if (profile.current_weight_kg !== undefined) formData.append('current_weight_kg', String(profile.current_weight_kg));
+      formData.append('avatar', profile.avatar);
+      return formData;
+    }
+    return profile;
   }
 }

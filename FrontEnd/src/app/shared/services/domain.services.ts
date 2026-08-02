@@ -86,12 +86,12 @@ export class MissionsService {
 
   complete(id: string): Observable<MissionRead> {
     return this.http.post<MissionRead>(`${this.apiUrl}/${id}/complete/`, {}).pipe(
-      switchMap(mission =>
-        this.profileService.get().pipe(
-          tap(() => mission),
-          switchMap(() => of(mission))
-        )
-      )
+      tap(mission => {
+        this.profileService.get().subscribe({
+          error: () => {},
+        });
+        return mission;
+      })
     );
   }
 }
@@ -141,7 +141,10 @@ export class ProgressService {
     return this.http.get<ProgressSummary>(`${this.apiUrl}/summary/`);
   }
 
-  volumeByGroup(): Observable<MuscleGroupVolumeSummary[]> {
-    return this.http.get<MuscleGroupVolumeSummary[]>(`${this.apiUrl}/volume_by_group/`);
+  volumeByGroup(dateFrom?: string, dateTo?: string): Observable<MuscleGroupVolumeSummary[]> {
+    let params = new HttpParams();
+    if (dateFrom) params = params.set('date_from', dateFrom);
+    if (dateTo) params = params.set('date_to', dateTo);
+    return this.http.get<MuscleGroupVolumeSummary[]>(`${this.apiUrl}/volume_by_group/`, { params });
   }
 }

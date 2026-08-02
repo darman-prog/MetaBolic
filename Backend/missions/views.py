@@ -15,7 +15,9 @@ class MissionViewSet(viewsets.ModelViewSet):
         return MissionReadSerializer
 
     def get_queryset(self):
-        return Mission.objects.filter(operator=self.request.user.operator_profile)
+        return Mission.objects.filter(
+            operator=self.request.user.operator_profile
+        ).select_related('operator')
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -29,6 +31,11 @@ class MissionViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def complete(self, request, pk=None):
         mission = self.get_object()
+        if mission.status == MissionStatus.COMPLETADA:
+            return Response(
+                {'detail': 'La misión ya está completada.'},
+                status=status.HTTP_409_CONFLICT,
+            )
         mission.status = MissionStatus.COMPLETADA
         mission.completed_at = timezone.now()
         mission.current_progress = mission.goal

@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -25,7 +26,10 @@ class Mission(models.Model):
     description = models.TextField(blank=True)
     priority = models.CharField(max_length=10, choices=MissionPriority.choices, default=MissionPriority.MEDIO)
     mission_type = models.CharField(max_length=20, choices=MissionType.choices, default=MissionType.EJERCICIO)
-    xp_reward = models.PositiveIntegerField(default=10)
+    xp_reward = models.PositiveIntegerField(
+        default=10,
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+    )
     current_progress = models.PositiveIntegerField(default=0)
     goal = models.PositiveIntegerField(default=1)
     status = models.CharField(max_length=20, choices=MissionStatus.choices, default=MissionStatus.PENDIENTE)

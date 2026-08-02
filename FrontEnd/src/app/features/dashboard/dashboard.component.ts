@@ -1,6 +1,7 @@
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { MetabolicButtonComponent } from '../../shared/components/metabolic-button/metabolic-button.component';
 import { MetabolicCardComponent } from '../../shared/components/metabolic-card/metabolic-card.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
@@ -40,6 +41,12 @@ import { AuthService } from '../../shared/services/auth.service';
         </div>
         <status-badge label="SYSTEM_ONLINE" tone="green" />
       </header>
+
+      @if (error()) {
+        <p class="api-error" role="alert">
+          <span class="error-prefix">[ERROR_FF]</span> {{ error() }}
+        </p>
+      }
 
       @if (loading()) {
         <metabolic-card accent="cyan">
@@ -82,13 +89,14 @@ import { AuthService } from '../../shared/services/auth.service';
                 <strong>{{ mission.title }}</strong>
               </div>
               <p class="mission-deadline">{{ mission.deadline ?? 'SIN_FECHA_LIMITE' }}</p>
+              <segment-bar [value]="mission.progress_percent" tone="rose" />
             } @else {
               <div class="stat-value">
                 <strong>--</strong>
               </div>
               <p class="mission-deadline">AWAITING_TELEMETRY</p>
+              <segment-bar [value]="0" tone="rose" />
             }
-            <segment-bar [value]="nextMission()?.progress_percent ?? 0" tone="rose" />
           </metabolic-card>
         </div>
       }
@@ -169,6 +177,22 @@ import { AuthService } from '../../shared/services/auth.service';
     .empty {
       text-align: center;
       padding: 32px 16px;
+    }
+
+    .error-prefix {
+      color: #ff0055;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .api-error {
+      margin: 0;
+      padding: 12px;
+      border-left: 3px solid #ff0055;
+      background: rgba(255, 0, 85, 0.1);
+      color: var(--metabolic-secondary);
+      font: 12px var(--metabolic-font-data);
+      letter-spacing: 0.06em;
     }
 
     .empty__icon {
@@ -341,26 +365,26 @@ export class DashboardComponent implements OnInit {
     this.loading.set(true);
     this.error.set('');
 
-    this.progressService.summary().subscribe({
-      next: summary => {
-        this.summary.set(summary);
-        this.loadSessions();
-        this.loadMissions();
-      },
-      error: (err: unknown) => {
-        this.loading.set(false);
-        this.error.set(AuthService.extractErrorMessage(err));
-      },
-    });
+    this.progressService.summary()
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: summary => {
+          this.summary.set(summary);
+          this.loadSessions();
+          this.loadMissions();
+        },
+        error: (err: unknown) => {
+          this.error.set(AuthService.extractErrorMessage(err));
+        },
+      });
   }
 
   private loadSessions(): void {
     this.sessionsService.list(1).subscribe({
       next: response => {
         this.sessions.set(response.results.slice(0, 5));
-        this.checkLoading();
       },
-      error: () => this.checkLoading(),
+      error: () => {},
     });
   }
 
@@ -371,18 +395,9 @@ export class DashboardComponent implements OnInit {
           m => m.status === 'PENDIENTE' || m.status === 'EN_PROGRESO'
         );
         this.missions.set(active.slice(0, 3));
-        this.checkLoading();
       },
-      error: () => this.checkLoading(),
+      error: () => {},
     });
-  }
-
-  private pendingRequests = 2;
-  private checkLoading(): void {
-    this.pendingRequests--;
-    if (this.pendingRequests <= 0) {
-      this.loading.set(false);
-    }
   }
 
   intensityFor(session: TrainingSessionRead): number {

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
 from .models import OperatorProfile
 
 
@@ -14,6 +15,10 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError('This username is already taken.')
+        return value
+
+    def validate_password(self, value):
+        validate_password(value)
         return value
 
     def validate_alias(self, value):
@@ -43,6 +48,10 @@ class OperatorProfileReadSerializer(serializers.ModelSerializer):
         ]
 
 
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField(required=True)
+
+
 class OperatorProfileWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = OperatorProfile
@@ -58,4 +67,9 @@ class OperatorProfileWriteSerializer(serializers.ModelSerializer):
     def validate_current_weight_kg(self, value):
         if value is not None and (value < 30 or value > 250):
             raise serializers.ValidationError('Weight must be between 30 and 250 kg.')
+        return value
+
+    def validate_alias(self, value):
+        if value and OperatorProfile.objects.filter(alias=value).exclude(pk=self.instance.pk if self.instance else None).exists():
+            raise serializers.ValidationError('This alias is already in use.')
         return value

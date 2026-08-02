@@ -9,10 +9,10 @@ from protocols.models import Protocol
 class SessionTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user('testop', password='testpass123')
+        self.user = User.objects.create_user('testop', password='StrongPass123!')
         self.profile = self.user.operator_profile
         response = self.client.post('/api/auth/login/', {
-            'username': 'testop', 'password': 'testpass123'
+            'username': 'testop', 'password': 'StrongPass123!'
         }, format='json')
         self.token = response.data['access']
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')
@@ -39,12 +39,14 @@ class SessionTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
 
-    def test_update_session_not_allowed(self):
+    def test_update_session_allowed(self):
         session = TrainingSession.objects.create(
             operator=self.profile, date='2026-07-28', actual_duration_min=45
         )
         response = self.client.patch(f'/api/sessions/{session.id}/', {'actual_duration_min': 60}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        session.refresh_from_db()
+        self.assertEqual(session.actual_duration_min, 60)
 
     def test_delete_session_allowed(self):
         session = TrainingSession.objects.create(

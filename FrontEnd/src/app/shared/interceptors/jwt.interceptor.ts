@@ -1,36 +1,9 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, Observable, switchMap, throwError } from 'rxjs';
+import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-
-let isRefreshing = false;
-const refreshQueue: { resolve: (token: string) => void; reject: (error: unknown) => void }[] = [];
-
-function addToQueue(): Observable<string> {
-  return new Observable<string>(observer => {
-    refreshQueue.push({
-      resolve: token => {
-        observer.next(token);
-        observer.complete();
-      },
-      reject: error => {
-        observer.error(error);
-      },
-    });
-  });
-}
-
-function processQueue(token: string | null, error: unknown | null): void {
-  refreshQueue.forEach(item => {
-    if (token) {
-      item.resolve(token);
-    } else {
-      item.reject(error);
-    }
-  });
-  refreshQueue.length = 0;
-}
+import { RefreshStateService } from '../services/refresh-state.service';
 
 function navigateToLogin(router: Router): void {
   void router.navigate(['/auth/login'], { state: { expired: true } });
@@ -39,6 +12,7 @@ function navigateToLogin(router: Router): void {
 export const jwtInterceptor: HttpInterceptorFn = (request, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
+  const refreshState = inject(RefreshStateService);
 
   const token = auth.accessToken;
   const authorized = token
@@ -52,16 +26,16 @@ export const jwtInterceptor: HttpInterceptorFn = (request, next) => {
         request.url.includes('/auth/refresh/') ||
         request.url.includes('/auth/register/');
 
-      if (error.status !== 401 || !auth.refreshToken || isAuthRequest) {
+      if (error.status !== 401 || !auth.accessToken || isAuthRequest) {
         return throwError(() => error);
       }
 
-      if (!isRefreshing) {
-        isRefreshing = true;
+      if (!refreshState.isRefreshing) {
+        refreshState.startRefresh();
         return auth.refresh().pipe(
           switchMap(response => {
-            isRefreshing = false;
-            processQueue(response.access, null);
+            refreshState.finishRefresh();
+            refreshState.processQueue(response.access, null);
             return next(
               request.clone({
                 setHeaders: { Authorization: `Bearer ${response.access}` },
@@ -69,8 +43,8 @@ export const jwtInterceptor: HttpInterceptorFn = (request, next) => {
             );
           }),
           catchError(refreshError => {
-            isRefreshing = false;
-            processQueue(null, refreshError);
+            refreshState.finishRefresh();
+            refreshState.processQueue(null, refreshError);
             auth.logout();
             navigateToLogin(router);
             return throwError(() => refreshError);
@@ -78,7 +52,7 @@ export const jwtInterceptor: HttpInterceptorFn = (request, next) => {
         );
       }
 
-      return addToQueue().pipe(
+      return refreshState.enqueue().pipe(
         switchMap(newToken =>
           next(
             request.clone({

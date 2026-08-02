@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from .models import ProgressEntry, MuscleGroupVolume
 from .serializers import (
     ProgressEntryReadSerializer,
@@ -22,7 +23,9 @@ class ProgressEntryViewSet(viewsets.ModelViewSet):
         return ProgressEntryReadSerializer
 
     def get_queryset(self):
-        return ProgressEntry.objects.filter(operator=self.request.user.operator_profile)
+        return ProgressEntry.objects.filter(
+            operator=self.request.user.operator_profile
+        ).select_related('operator')
 
     def perform_create(self, serializer):
         serializer.save(operator=self.request.user.operator_profile)
@@ -35,7 +38,8 @@ class ProgressEntryViewSet(viewsets.ModelViewSet):
         total_load = sessions.aggregate(s=Sum('total_load_kg'))['s'] or 0
         total_calories = sessions.aggregate(c=Sum('estimated_calories'))['c'] or 0
         completed_missions = profile.missions.filter(status='COMPLETADA').count()
-        streak = self._calculate_streak(sessions)
+        today = self._resolve_today(request)
+        streak = self._calculate_streak(sessions, today=today)
         return Response({
             'total_sessions': total_sessions,
             'total_load_kg': total_load,
@@ -44,26 +48,45 @@ class ProgressEntryViewSet(viewsets.ModelViewSet):
             'current_streak_days': streak,
             'xp_total': profile.xp_total,
             'level': profile.level,
+            'rank': profile.rank,
         })
+
+    def _resolve_today(self, request):
+        tz_name = request.query_params.get('timezone')
+        if not tz_name:
+            return timezone.now().date()
+        try:
+            tz = ZoneInfo(tz_name)
+        except ZoneInfoNotFoundError:
+            return timezone.now().date()
+        return timezone.now().astimezone(tz).date()
 
     @action(detail=False, methods=['get'])
     def volume_by_group(self, request):
         profile = request.user.operator_profile
-        session_ids = TrainingSession.objects.filter(operator=profile).values_list('id', flat=True)
+        sessions = TrainingSession.objects.filter(operator=profile)
+        date_from = request.query_params.get('date_from')
+        date_to = request.query_params.get('date_to')
+        if date_from:
+            sessions = sessions.filter(date__gte=date_from)
+        if date_to:
+            sessions = sessions.filter(date__lte=date_to)
+        session_ids = sessions.values_list('id', flat=True)
         volumes = (
             MuscleGroupVolume.objects
             .filter(session_id__in=session_ids)
             .values('muscle_group')
             .annotate(total_volume=Sum('volume_kg'))
         )
-        return Response(volumes)
+        return Response(list(volumes))
 
-    def _calculate_streak(self, sessions):
+    def _calculate_streak(self, sessions, today=None):
         if not sessions.exists():
             return 0
         dates = sorted(set(sessions.values_list('date', flat=True)), reverse=True)
         streak = 0
-        today = timezone.now().date()
+        if today is None:
+            today = timezone.now().date()
         expected = today
         for d in dates:
             if d == expected or d == expected - timedelta(days=1):

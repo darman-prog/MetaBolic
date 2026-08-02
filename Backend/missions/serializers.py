@@ -22,6 +22,12 @@ class MissionReadSerializer(serializers.ModelSerializer):
 
 
 class MissionWriteSerializer(serializers.ModelSerializer):
+    xp_reward = serializers.IntegerField(
+        required=False,
+        min_value=1,
+        max_value=100,
+    )
+
     class Meta:
         model = Mission
         fields = [

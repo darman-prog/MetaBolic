@@ -8,16 +8,18 @@ from progress.serializers import MuscleGroupVolumeSerializer
 
 
 class TrainingSessionViewSet(viewsets.ModelViewSet):
-    http_method_names = ['get', 'post', 'delete', 'head', 'options']
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
     permission_classes = [permissions.IsAuthenticated]
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method in ('POST', 'PUT', 'PATCH'):
             return TrainingSessionWriteSerializer
         return TrainingSessionReadSerializer
 
     def get_queryset(self):
-        qs = TrainingSession.objects.filter(operator=self.request.user.operator_profile)
+        qs = TrainingSession.objects.filter(
+            operator=self.request.user.operator_profile
+        ).select_related('operator', 'protocol')
         date_from = self.request.query_params.get('date_from')
         date_to = self.request.query_params.get('date_to')
         if date_from:
